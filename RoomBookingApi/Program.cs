@@ -18,6 +18,7 @@ public partial class Program
         // Add services to the container.
 
         builder.Services.AddControllers();
+        builder.Services.AddProblemDetails();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -35,6 +36,14 @@ public partial class Program
         builder.Services.AddScoped<BookingService>();
 
         var app = builder.Build();
+
+        app.UseExceptionHandler(errorApp =>
+        {
+            errorApp.Run(context => Results.Problem(
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "An unexpected error occurred."
+            ).ExecuteAsync(context));
+        });
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

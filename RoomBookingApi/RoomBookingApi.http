@@ -1,6 +1,29 @@
-@RoomBookingApi_HostAddress = http://localhost:5113
+@RoomBookingApi_HostAddress = https://localhost:7113
+@roomId = 1
+@date = 2030-01-15
+# Set this to the id returned by POST before sending DELETE.
+@bookingId = 0
 
-GET {{RoomBookingApi_HostAddress}}/weatherforecast/
+### List rooms
+GET {{RoomBookingApi_HostAddress}}/api/rooms
 Accept: application/json
 
-###
+### Get the room schedule for a UTC date
+GET {{RoomBookingApi_HostAddress}}/api/rooms/{{roomId}}/bookings?date={{date}}
+Accept: application/json
+
+### Create a booking
+POST {{RoomBookingApi_HostAddress}}/api/bookings
+Accept: application/json
+Content-Type: application/json
+
+{
+  "roomId": {{roomId}},
+  "title": "Team planning",
+  "start": "{{date}}T10:00:00Z",
+  "end": "{{date}}T11:00:00Z"
+}
+
+### Cancel a booking
+DELETE {{RoomBookingApi_HostAddress}}/api/bookings/{{bookingId}}
+Accept: application/json

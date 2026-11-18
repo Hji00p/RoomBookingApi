@@ -113,3 +113,11 @@ To run the Angular test, use `npm test -- --watch=false` from the `meeting-room-
 | `MeetingRoomBooking.Infrastructure` | PostgreSQL access through EF Core, migrations, and booking transactions. |
 | `MeetingRoomBooking.Tests` | NUnit HTTP integration tests. |
 | `meeting-room-web` | Angular booking interface. |
+
+## AI Prompts
+
+1. For the `Booking` entity, validate a positive room ID, a non-blank title, and UTC times with end after start.
+2. Implement `IBookingRepository` and `IRoomRepository` using EF Core. Support listing rooms, checking if a room exists, and listing, creating, and cancelling bookings. Prevent overlapping active bookings for the same room.
+3. Write ASP.NET Core controllers for rooms and bookings. Add endpoints to list rooms, view a room’s bookings for a selected UTC date, and create or cancel a booking.
+4. Write a service that validates booking requests, checks that the room exists, converts times to UTC, and uses repositories to create or cancel bookings. Return a conflict result when the requested time overlaps an active booking.
+5. Build a single-page Angular client for the meeting room booking API. Let users select a room and date, view the UTC schedule, and create or cancel bookings. Show API errors inline and use `ngx-toastr` for success notifications.

@@ -1,0 +1,115 @@
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M7.5 3v4m9-4v4M4 10h16m-12 5h3m2 0h3"/>
+      </svg>
+    </span>
+    <span class="brand-name">Room Booking</span>
+  </div>
+</header>
+
+<main class="workspace">
+  <div class="page-heading">
+    <h1>Meeting rooms</h1>
+    <p>View room schedules and book time for your meetings.</p>
+  </div>
+
+  @if (notice()) {
+    <div class="notice" role="status">{{ notice() }}</div>
+  }
+
+  <div class="layout">
+    <section class="card schedule-card" aria-labelledby="schedule-heading">
+      <div class="card-heading">
+        <h2 id="schedule-heading">Room schedule</h2>
+        <span class="timezone">UTC</span>
+      </div>
+      <div class="filters">
+        <label for="room">Meeting room
+          <select id="room" [value]="roomId()" [disabled]="roomsLoading() || !rooms().length"
+            (change)="selectRoom($any($event.target).value)">
+            @if (!rooms().length) {
+              <option value="0">{{ roomsLoading() ? 'Loading rooms…' : 'No rooms available' }}</option>
+            }
+            @for (room of rooms(); track room.id) {
+              <option [value]="room.id" [selected]="room.id === roomId()">{{ room.name }}</option>
+            }
+          </select>
+        </label>
+        <label for="date">Date
+          <input id="date" type="date" [value]="date()" (change)="selectDate($any($event.target).value)">
+        </label>
+      </div>
+
+      @if (roomsError()) {
+        <div class="error-box"><p role="alert">{{ roomsError() }}</p><button type="button" (click)="loadRooms()">Retry</button></div>
+      }
+      @if (cancellationError()) { <p class="error-box" role="alert">{{ cancellationError() }}</p> }
+      @if (scheduleError()) {
+        <div class="error-box"><p role="alert">{{ scheduleError() }}</p><button type="button" (click)="loadSchedule()">Retry</button></div>
+      } @else if (scheduleLoading()) {
+        <div class="empty" role="status">Loading schedule…</div>
+      } @else if (selectedRoom() && date()) {
+        <div class="schedule-body">
+          <h3>{{ (date() + 'T00:00:00Z') | date:'EEEE, MMMM d, y':'UTC' }}</h3>
+          @if (bookings().length) {
+            <ul class="booking-list">
+              @for (booking of bookings(); track booking.id) {
+                <li>
+                  <div class="booking-summary">
+                    <strong>{{ booking.title }}</strong>
+                    <span>{{ booking.startUtc | date:'MMM d, HH:mm':'UTC' }} – {{ booking.endUtc | date:'MMM d, HH:mm':'UTC' }}</span>
+                  </div>
+                  <button type="button" class="cancel" [disabled]="cancellingId() !== null"
+                    [attr.aria-label]="'Cancel ' + booking.title" (click)="cancelBooking(booking)">
+                    {{ cancellingId() === booking.id ? 'Cancelling…' : 'Cancel' }}
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="empty">
+              <span class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55">
+                  <rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M7.5 3v4m9-4v4M4 10h16m-9 6 1 1 3-3"/>
+                </svg>
+              </span>
+              <strong>No bookings for this day</strong>
+              <span>{{ selectedRoom()?.name }} is available.</span>
+            </div>
+          }
+        </div>
+      } @else if (!roomsLoading() && selectedRoom()) {
+        <div class="empty">Choose a date to view the schedule.</div>
+      }
+    </section>
+
+    <section class="card form-card" aria-labelledby="booking-heading">
+      <div class="card-heading"><h2 id="booking-heading">New booking</h2></div>
+      @if (selectedRoom() && date()) {
+        <p class="booking-context">{{ selectedRoom()?.name }} · {{ (date() + 'T00:00:00Z') | date:'MMM d, y':'UTC' }}</p>
+      }
+      <form [formGroup]="form" (ngSubmit)="createBooking()">
+        <label for="title">Meeting title
+          <input id="title" type="text" placeholder="e.g. Team planning" formControlName="title" required>
+        </label>
+        <div class="time-fields">
+          <label for="start">Start (UTC)
+            <input id="start" type="time" formControlName="start" required>
+          </label>
+          <label for="end">End (UTC)
+            <input id="end" type="time" formControlName="end" required>
+          </label>
+        </div>
+        <label class="checkbox" for="overnight">
+          <input id="overnight" type="checkbox" formControlName="overnight"> Ends the next day
+        </label>
+        @if (formError()) { <p class="error-box" role="alert">{{ formError() }}</p> }
+        <button class="primary" type="submit" [disabled]="saving() || !selectedRoom() || !date()">
+          {{ saving() ? 'Booking…' : 'Book room' }}
+        </button>
+      </form>
+    </section>
+  </div>
+</main>

@@ -1,0 +1,12 @@
+.vs/
+bin/
+obj/
+TestResults/
+node_modules/
+.angular/
+dist/
+.env
+.env.*
+!.env.example
+secrets.json
+*.csproj.user

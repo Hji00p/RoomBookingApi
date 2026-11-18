@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: meeting_room_booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${BOOKING_DB_PASSWORD:?Set BOOKING_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - booking_pgdata:/var/lib/postgresql
+
+volumes:
+  booking_pgdata:

@@ -1,0 +1,10 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 280px;
+  color: #153529;
+  background: #eef6f2;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+button, input, select { font: inherit; }
+:focus-visible { outline: 2px solid #197850; outline-offset: 2px; }

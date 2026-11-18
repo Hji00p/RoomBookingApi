@@ -8,3 +8,19 @@ body {
 }
 button, input, select { font: inherit; }
 :focus-visible { outline: 2px solid #197850; outline-offset: 2px; }
+
+
+.toast-container.toast-top-center {
+  top: 16px;
+}
+
+.toast-container.toast-top-center .ngx-toastr {
+  width: min(480px, calc(100vw - 32px));
+  min-height: 80px;
+  padding: 24px 22px 24px 60px;
+  border-radius: 14px;
+  background-position: 20px center;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

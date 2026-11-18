@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { Booking, BookingApi, Room, bookingError } from './booking-api';
 
@@ -13,6 +14,7 @@ import { Booking, BookingApi, Room, bookingError } from './booking-api';
 })
 export class App {
   private readonly api = inject(BookingApi);
+  private readonly toastr = inject(ToastrService);
   private readonly destroyRef = inject(DestroyRef);
   private scheduleRequest?: Subscription;
 
@@ -29,7 +31,6 @@ export class App {
   protected readonly scheduleError = signal('');
   protected readonly formError = signal('');
   protected readonly cancellationError = signal('');
-  protected readonly notice = signal('');
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     title: ['', Validators.required],
@@ -70,7 +71,6 @@ export class App {
   }
 
   private selectionChanged(): void {
-    this.notice.set('');
     this.cancellationError.set('');
     this.formError.set('');
     this.loadSchedule();
@@ -100,7 +100,6 @@ export class App {
   protected createBooking(): void {
     if (this.saving() || !this.roomId() || !this.date()) return;
     this.formError.set('');
-    this.notice.set('');
     const { title, start, end, overnight } = this.form.getRawValue();
     if (this.form.invalid || !title.trim()) {
       this.formError.set('Enter a meeting title and both times.');
@@ -125,7 +124,7 @@ export class App {
       next: booking => {
         this.saving.set(false);
         this.form.controls.title.reset();
-        this.notice.set(`“${booking.title}” was booked.`);
+        this.toastr.success(`“${booking.title}” was booked.`);
         this.loadSchedule();
       },
       error: error => {
@@ -137,13 +136,12 @@ export class App {
 
   protected cancelBooking(booking: Booking): void {
     if (this.cancellingId() !== null) return;
-    this.notice.set('');
     this.cancellationError.set('');
     this.cancellingId.set(booking.id);
     this.api.cancel(booking.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.cancellingId.set(null);
-        this.notice.set(`“${booking.title}” was cancelled.`);
+        this.toastr.success(`“${booking.title}” was cancelled.`);
         this.loadSchedule();
       },
       error: error => {
